@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interactive Car Demo</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+  
+  /* Application */
+body, html, canvas, #verold3d {
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #000000;
+  background-image:url('http://assets.verold.com/production/images/verold-studio-scene-logo.svg');
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  background-position:center;
+}
+
+/* NProgress */
+#nprogress { pointer-events: none; }
+#nprogress .bar { background: #009BDF; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 3px; }
+#nprogress .peg { display: block; position: absolute; right: 0px; width: 100px; height: 100%; box-shadow: 0 0 10px #009BDF, 0 0 5px #009BDF; opacity: 1.0; -webkit-transform: rotate(3deg) translate(0px, -4px); -ms-transform: rotate(3deg) translate(0px, -4px); transform: rotate(3deg) translate(0px, -4px); }
+
+/* Remove these to get rid of the spinner */
+#nprogress .spinner { display: block; position: fixed; z-index: 100; top: 15px; right: 15px; }
+#nprogress .spinner-icon { width: 18px; height: 18px; box-sizing: border-box; border: solid 2px transparent; border-top-color: #009BDF; border-left-color: #009BDF; border-radius: 50%; -webkit-animation: nprogress-spinner 400ms linear infinite; animation: nprogress-spinner 400ms linear infinite; }
+@-webkit-keyframes nprogress-spinner { 0%   { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); }
+@keyframes nprogress-spinner { 0%   { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  
+  </style>
+</head>
+<body>
+  
+    <div id="verold3d"></div>
+
+  
+  <script>
+  function startApplication(VAPI) {
+    var $ = window.jQuery;
+
+    
+      VAPI.progress.start();
+
+var DemoApplication = VAPI.VeroldApp.extend({
+  defaultSceneLoaded: function (scene) {
+    this.threeScene = scene.threeData;
+
+    var that = this;
+    scene.traverse(function(obj) {
+      if (obj.threeData instanceof THREE.Camera) {
+        that.threeCamera = obj.threeData;
+
+        obj.threeData.aspect = $(window).width() / $(window).height();
+        obj.threeData.updateProjectionMatrix();
+      }
+    });
+
+    VAPI.progress.done();
+  },
+
+  defaultSceneProgress: function(sceneObj) {
+    var loaded = Math.ceil(((sceneObj.loadingProgress.hierarchy + sceneObj.loadingProgress.dependencies) / sceneObj.getDataSize()) * 100) / 100;
+    VAPI.progress.set(loaded);
+  },
+
+  update: function(delta) {
+  },
+
+  render: function(delta) {
+    // Call this once per render to reset draw calls, vertices and
+    // faces
+    VAPI.resetRenderStats();
+
+    if (this.threeScene && this.threeCamera) {
+      var renderer = this.getRenderer();
+
+      renderer.render( this.threeScene, this.threeCamera );
+
+      // Call this after each call to renderer.render to track
+      // draw calls, vertices and faces
+      VAPI.addRenderStats(renderer);
+    }
+  }
+});
+
+var app = new DemoApplication({
+  el: '#verold3d',
+  projectId: '528cf8c7daf7da0200000132',
+  engineOptions: {
+  }
+});
+
+app.run();
+
+    
+  }
+  </script>
+  
+    <script src="http://assets.verold.com/runtime/verold-runtime-0.5.0.min.js"></script>
+    <script>
+    startApplication(window.VAPI);
+    </script>
+  
+</body>
+</html>
