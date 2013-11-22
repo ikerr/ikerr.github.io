@@ -1,0 +1,313 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Audio Demo</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+  
+    /* Application */
+body, html, canvas, #verold3d {
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #000000;
+  background-image:url('http://assets.verold.com/production/images/logo_white.svg');
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  background-position:center;
+}
+
+.bottom-bar{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  height:42px;
+  background: rgba(0,0,0,0.5);
+}
+
+.sound-toggle{ 
+  float:left;
+  margin-left:10px;
+}
+
+.sound-toggle:hover path{
+  fill:#ccc;
+}
+
+
+.verold-logo{
+  float: right;
+  margin-right:10px;
+}
+
+/* NProgress */
+#nprogress { pointer-events: none; }
+#nprogress .bar { background: #009BDF; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 3px; }
+#nprogress .peg { display: block; position: absolute; right: 0px; width: 100px; height: 100%; box-shadow: 0 0 10px #009BDF, 0 0 5px #009BDF; opacity: 1.0; -webkit-transform: rotate(3deg) translate(0px, -4px); -ms-transform: rotate(3deg) translate(0px, -4px); transform: rotate(3deg) translate(0px, -4px); }
+
+/* Remove these to get rid of the spinner */
+#nprogress .spinner { display: block; position: fixed; z-index: 100; top: 15px; right: 15px; }
+#nprogress .spinner-icon { width: 18px; height: 18px; box-sizing: border-box; border: solid 2px transparent; border-top-color: #009BDF; border-left-color: #009BDF; border-radius: 50%; -webkit-animation: nprogress-spinner 400ms linear infinite; animation: nprogress-spinner 400ms linear infinite; }
+@-webkit-keyframes nprogress-spinner { 0%   { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); }
+@keyframes nprogress-spinner { 0%   { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+
+  
+  </style>
+</head>
+<body>
+  
+    <div id="verold3d"></div>
+
+<div class="bottom-bar">
+  
+  <a class="sound-toggle" href="javascript:void(0);">
+    <svg version="1.1" 
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px" height="42px"
+	 viewBox="0 0 32 42" enable-background="new 0 0 32 42" xml:space="preserve">
+
+<g sketch:type="MSPage">
+	<path sketch:type="MSShapeGroup" fill="#FFFFFF" d="M6.542,26.727H2.136C0.957,26.727,0,25.801,0,24.657v-7.314
+		c0-1.143,0.956-2.07,2.136-2.07h4.406V26.727L6.542,26.727L6.542,26.727L6.542,26.727z"/>
+	<path sketch:type="MSShapeGroup" fill="#FFFFFF" d="M8.943,14.759V27.24L19.266,33V9L8.943,14.759L8.943,14.759
+		L8.943,14.759L8.943,14.759z"/>
+	<path id="mute" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M32,24.171L28.727,21L32,17.828l-1.76-1.704l-3.273,3.171
+		l-3.271-3.171l-1.76,1.704L25.209,21l-3.273,3.172l1.758,1.705l3.274-3.173l3.273,3.172L32,24.171L32,24.171L32,24.171L32,24.171z"
+		/>
+</g>
+</svg>
+  </a>
+  
+  <a class="verold-logo" href="http://studio.verold.com" target="_blank">
+    <svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="93px" height="42px"
+	 viewBox="0 0 93 42" enable-background="new 0 0 93 42" xml:space="preserve">
+
+<g sketch:type="MSPage">
+	<g  transform="translate(1.000000, 6.000000)" sketch:type="MSLayerGroup">
+		<path id="Shape" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M47.559,8.799L41.758,22.07h-0.29L35.75,8.799h1.451l4.413,10.258
+			l4.494-10.258H47.559z"/>
+		<path id="Shape_1_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M64.146,12.459c0.016-0.001,0.043-0.001,0.043-0.001v1.145
+			c0,0-0.023,0-0.038,0.001c-0.362,0.03-1.817,0.619-2.278,1.69c-0.385,0.896-0.35,1.666-0.35,2.095v4.641h-1.259
+			c0,0-0.011-3.773-0.011-4.641c0-0.865,0.053-1.929,0.564-2.865C61.717,12.882,63.689,12.472,64.146,12.459"/>
+		<path id="Shape_2_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M75.264,17.319c0,1.394-0.477,2.567-1.428,3.521
+			c-0.949,0.952-2.123,1.431-3.522,1.431s-2.574-0.477-3.526-1.427c-0.953-0.95-1.432-2.127-1.432-3.525
+			c0-1.312,0.439-2.449,1.312-3.412c0.962-1.062,2.176-1.593,3.646-1.593c1.464,0,2.676,0.528,3.637,1.583
+			C74.824,14.862,75.264,16.003,75.264,17.319 M74.012,17.345c0-1.041-0.356-1.94-1.068-2.695c-0.713-0.756-1.588-1.133-2.629-1.133
+			c-1.04,0-1.918,0.377-2.629,1.133c-0.713,0.755-1.07,1.654-1.07,2.695c0,0.671,0.162,1.3,0.48,1.886
+			c0.331,0.601,0.781,1.064,1.353,1.389c0.569,0.325,1.19,0.487,1.866,0.487c1.441,0,2.51-0.618,3.199-1.852
+			C73.846,18.665,74.012,18.029,74.012,17.345"/>
+		<rect id="Rectangle" x="77.35" y="8.902" sketch:type="MSShapeGroup" fill="#FFFFFF" width="1.234" height="13.127">
+		</rect>
+		<path id="Shape_3_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M90.689,17.129v0.014v-8.24h-1.231v5.082
+			c0.074,0.084,0.142,0.172,0.206,0.259c-0.087-0.113-0.18-0.225-0.277-0.336c-0.963-1.054-2.176-1.583-3.637-1.583
+			c-1.469,0-2.686,0.531-3.646,1.593c-0.873,0.964-1.311,2.1-1.311,3.411c0,1.399,0.477,2.575,1.43,3.526
+			c0.951,0.953,2.128,1.428,3.526,1.428c1.399,0,2.573-0.479,3.522-1.431c0.951-0.956,1.418-2.129,1.418-3.523
+			C90.689,17.26,90.691,17.195,90.689,17.129 M89.938,14.632c-0.076-0.118-0.154-0.234-0.239-0.347
+			C89.784,14.398,89.864,14.514,89.938,14.632 M90.66,16.709c-0.002-0.014-0.005-0.027-0.006-0.041
+			C90.655,16.682,90.658,16.695,90.66,16.709 M90.594,16.279c-0.004-0.021-0.008-0.041-0.014-0.062
+			C90.586,16.238,90.59,16.259,90.594,16.279 M90.493,15.862c-0.009-0.031-0.021-0.062-0.03-0.092
+			C90.473,15.801,90.484,15.831,90.493,15.862 M90.356,15.456c-0.03-0.077-0.065-0.152-0.1-0.227
+			C90.291,15.304,90.326,15.379,90.356,15.456 M90.184,15.062c-0.066-0.135-0.141-0.266-0.221-0.395
+			C90.043,14.797,90.117,14.927,90.184,15.062 M88.945,19.246c-0.691,1.234-1.758,1.852-3.201,1.852
+			c-0.674,0-1.295-0.162-1.864-0.486c-0.573-0.325-1.022-0.789-1.353-1.391c-0.32-0.584-0.48-1.213-0.48-1.884
+			c0-1.041,0.355-1.94,1.068-2.696c0.711-0.756,1.588-1.133,2.629-1.133c1.042,0,1.918,0.377,2.629,1.133
+			c0.713,0.756,1.068,1.655,1.068,2.696C89.442,18.021,89.276,18.655,88.945,19.246"/>
+		<path id="Shape_4_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M58.153,17.4h-8.54c0.023,1.061,0.354,1.943,0.995,2.648
+			c0.675,0.741,1.538,1.112,2.585,1.112c1.013,0,1.871-0.306,2.575-0.921c0.321-0.277,0.667-0.723,1.039-1.342l1.032,0.539
+			c-0.642,1.248-1.529,2.088-2.666,2.523c-0.555,0.216-1.182,0.322-1.881,0.322c-1.426,0-2.609-0.471-3.543-1.408
+			c-0.937-0.941-1.404-2.123-1.404-3.545c0-1.201,0.371-2.271,1.11-3.211c0.938-1.195,2.196-1.793,3.768-1.793
+			c1.619,0,2.913,0.612,3.881,1.837C57.793,15.033,58.143,16.111,58.153,17.4L58.153,17.4z M56.816,16.338
+			c-0.303-1.192-0.953-2.021-1.949-2.482c-0.512-0.235-1.053-0.354-1.617-0.354c-0.932,0-1.733,0.297-2.404,0.891
+			c-0.488,0.434-0.859,1.081-1.109,1.946H56.816L56.816,16.338L56.816,16.338L56.816,16.338L56.816,16.338z"/>
+		<path id="Shape_5_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M15.447,3.316c0.842-0.273,1.301-1.173,1.025-2.013
+			c-0.274-0.838-1.179-1.295-2.021-1.021c-0.84,0.271-1.301,1.175-1.027,2.012C13.7,3.132,14.604,3.59,15.447,3.316"/>
+		<path id="Shape_6_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M8.754,5.091c0.85-0.277,1.314-1.185,1.037-2.034
+			C9.514,2.21,8.598,1.748,7.749,2.024C6.899,2.3,6.435,3.211,6.711,4.057C6.989,4.904,7.903,5.366,8.754,5.091"/>
+		<path id="Shape_7_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M3.889,9.955c0.849-0.276,1.314-1.187,1.037-2.034
+			C4.648,7.074,3.732,6.612,2.884,6.889c-0.85,0.275-1.315,1.186-1.038,2.032C2.125,9.768,3.039,10.231,3.889,9.955"/>
+		<path id="Shape_8_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M3.16,14.479c-0.278-0.848-1.193-1.31-2.042-1.033
+			c-0.851,0.275-1.314,1.186-1.038,2.032c0.279,0.848,1.192,1.309,2.042,1.034C2.972,16.234,3.437,15.325,3.16,14.479"/>
+		<path id="Shape_9_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M2.929,20.124c-0.849,0.274-1.315,1.186-1.038,2.032
+			c0.279,0.848,1.192,1.311,2.043,1.033c0.85-0.275,1.314-1.186,1.037-2.033C4.694,20.31,3.78,19.848,2.929,20.124"/>
+		<path id="Shape_10_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M7.804,24.967c-0.85,0.275-1.314,1.186-1.037,2.031
+			c0.278,0.847,1.192,1.311,2.042,1.034c0.85-0.276,1.315-1.187,1.037-2.033C9.569,25.152,8.653,24.689,7.804,24.967"/>
+		<path id="Shape_11_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M14.433,26.725c-0.849,0.274-1.314,1.187-1.038,2.033
+			c0.278,0.847,1.193,1.309,2.043,1.032c0.85-0.275,1.314-1.187,1.036-2.034C16.197,26.91,15.282,26.448,14.433,26.725"/>
+		<path id="Shape_12_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M21.062,24.932c-0.851,0.275-1.315,1.187-1.038,2.032
+			c0.278,0.847,1.192,1.31,2.043,1.032c0.85-0.276,1.314-1.185,1.036-2.031C22.826,25.117,21.911,24.654,21.062,24.932"/>
+		<path id="Shape_13_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M25.891,20.113c-0.85,0.274-1.314,1.186-1.038,2.031
+			c0.278,0.848,1.192,1.311,2.043,1.033c0.849-0.276,1.313-1.186,1.036-2.033C27.655,20.298,26.74,19.836,25.891,20.113"/>
+		<path id="Shape_14_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M29.733,14.544c-0.277-0.847-1.193-1.309-2.042-1.031
+			c-0.851,0.275-1.315,1.186-1.038,2.032c0.278,0.848,1.192,1.309,2.042,1.033C29.547,16.301,30.01,15.392,29.733,14.544"/>
+		<path id="Shape_15_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M26.918,9.977c0.849-0.276,1.314-1.185,1.037-2.032
+			c-0.277-0.848-1.192-1.31-2.042-1.034c-0.849,0.276-1.313,1.187-1.037,2.033C25.154,9.791,26.068,10.253,26.918,9.977"/>
+		<path id="Shape_16_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M21.074,2.069c-0.85,0.275-1.316,1.187-1.038,2.033
+			c0.278,0.847,1.192,1.309,2.042,1.033s1.314-1.186,1.037-2.033C22.839,2.255,21.922,1.793,21.074,2.069"/>
+		<path id="Shape_17_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M25.259,16.49c-0.631-0.318-1.401-0.067-1.72,0.561
+			c-0.321,0.626-0.07,1.393,0.56,1.712c0.63,0.319,1.4,0.068,1.72-0.56C26.14,17.576,25.889,16.811,25.259,16.49"/>
+		<path id="Shape_18_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M24.093,13.582c0.63,0.318,1.4,0.069,1.721-0.56
+			c0.319-0.626,0.069-1.393-0.562-1.712c-0.631-0.319-1.402-0.068-1.721,0.559C23.211,12.496,23.463,13.263,24.093,13.582"/>
+		<path id="Shape_19_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M8.368,6.762c-0.63-0.318-1.401-0.067-1.721,0.559
+			C6.326,7.947,6.578,8.715,7.208,9.034c0.631,0.317,1.4,0.067,1.721-0.56C9.25,7.848,8.999,7.082,8.368,6.762"/>
+		<path id="Shape_20_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M4.554,13.569c0.631,0.319,1.401,0.069,1.723-0.56
+			c0.318-0.626,0.068-1.393-0.564-1.713c-0.629-0.318-1.4-0.066-1.718,0.561C3.673,12.483,3.924,13.251,4.554,13.569"/>
+		<path id="Shape_21_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M5.724,16.521c-0.63-0.318-1.401-0.068-1.72,0.559
+			c-0.32,0.627-0.069,1.395,0.561,1.714c0.632,0.317,1.401,0.068,1.721-0.56C6.605,17.607,6.355,16.841,5.724,16.521"/>
+		<path id="Shape_22_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M8.353,21.032c-0.631-0.319-1.4-0.068-1.719,0.559
+			c-0.321,0.627-0.069,1.394,0.56,1.714c0.631,0.318,1.401,0.068,1.722-0.559C9.235,22.119,8.983,21.352,8.353,21.032"/>
+		<path id="Shape_23_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M12.902,23.619c-0.63-0.318-1.401-0.066-1.72,0.56
+			c-0.321,0.626-0.07,1.394,0.56,1.714c0.631,0.318,1.401,0.067,1.721-0.561C13.783,24.705,13.533,23.938,12.902,23.619"/>
+		<path id="Shape_24_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M18.142,23.613c-0.63-0.319-1.401-0.068-1.719,0.559
+			c-0.322,0.627-0.069,1.395,0.56,1.714c0.631,0.317,1.4,0.067,1.722-0.56C19.024,24.699,18.773,23.932,18.142,23.613"/>
+		<path id="Shape_25_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M22.661,21.008c-0.631-0.318-1.402-0.067-1.721,0.56
+			c-0.321,0.626-0.069,1.394,0.561,1.712c0.631,0.318,1.401,0.07,1.721-0.559C23.541,22.093,23.29,21.328,22.661,21.008"/>
+		<path id="Shape_26_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M21.494,9.066c0.631,0.317,1.401,0.068,1.722-0.56
+			c0.319-0.626,0.068-1.394-0.562-1.712c-0.629-0.32-1.4-0.069-1.719,0.558C20.613,7.978,20.864,8.747,21.494,9.066"/>
+		<path id="Shape_27_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M16.97,6.466c0.631,0.318,1.4,0.068,1.721-0.559
+			c0.321-0.628,0.069-1.395-0.562-1.712c-0.63-0.32-1.4-0.069-1.72,0.558C16.09,5.379,16.341,6.147,16.97,6.466"/>
+		<path id="Shape_28_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M12.908,4.181c-0.631-0.319-1.402-0.069-1.72,0.56
+			c-0.32,0.625-0.069,1.393,0.561,1.712c0.631,0.319,1.4,0.068,1.721-0.56C13.789,5.268,13.539,4.501,12.908,4.181"/>
+		<path id="Shape_29_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M9.059,10.544c-0.544-0.115-1.082,0.232-1.196,0.775
+			c-0.117,0.542,0.234,1.077,0.779,1.191c0.546,0.115,1.082-0.232,1.197-0.776C9.953,11.192,9.604,10.658,9.059,10.544"/>
+		<path id="Shape_30_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M8.877,15.248c0.114-0.544-0.232-1.077-0.78-1.192
+			c-0.545-0.114-1.081,0.234-1.195,0.777c-0.116,0.542,0.233,1.075,0.778,1.19C8.227,16.139,8.762,15.791,8.877,15.248"/>
+		<path id="Shape_31_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M9.047,17.557c-0.545-0.115-1.081,0.232-1.196,0.775
+			c-0.115,0.542,0.234,1.076,0.779,1.189c0.545,0.115,1.081-0.231,1.196-0.775C9.941,18.203,9.594,17.672,9.047,17.557"/>
+		<path id="Shape_32_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M11.623,20.109c-0.545-0.115-1.081,0.232-1.196,0.775
+			c-0.116,0.543,0.234,1.076,0.779,1.191c0.545,0.114,1.081-0.234,1.196-0.776C12.518,20.758,12.169,20.224,11.623,20.109"/>
+		<path id="Shape_33_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M15.138,21.029c-0.546-0.114-1.082,0.232-1.196,0.776
+			c-0.116,0.542,0.232,1.076,0.778,1.19c0.545,0.114,1.082-0.233,1.197-0.775S15.686,21.145,15.138,21.029"/>
+		<path id="Shape_34_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M18.648,20.088c-0.546-0.113-1.082,0.233-1.196,0.777
+			c-0.116,0.542,0.234,1.075,0.778,1.19c0.547,0.114,1.082-0.232,1.197-0.777C19.542,20.736,19.194,20.203,18.648,20.088"/>
+		<path id="Shape_35_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M21.205,17.534c-0.544-0.114-1.081,0.233-1.195,0.776
+			c-0.116,0.542,0.233,1.076,0.779,1.19c0.546,0.114,1.082-0.232,1.196-0.776C22.1,18.184,21.751,17.648,21.205,17.534"/>
+		<path id="Shape_36_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M22.134,14.042c-0.548-0.114-1.083,0.234-1.198,0.776
+			c-0.115,0.542,0.233,1.077,0.779,1.191c0.546,0.113,1.082-0.232,1.197-0.776C23.026,14.69,22.678,14.158,22.134,14.042"/>
+		<path id="Shape_37_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M20.777,12.539c0.546,0.115,1.081-0.232,1.197-0.776
+			c0.114-0.543-0.234-1.076-0.78-1.191c-0.545-0.114-1.081,0.233-1.196,0.777C19.883,11.891,20.231,12.425,20.777,12.539"/>
+		<path id="Shape_38_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M18.222,9.977c0.544,0.114,1.08-0.232,1.195-0.777
+			c0.115-0.542-0.233-1.075-0.78-1.191c-0.544-0.113-1.082,0.233-1.195,0.776C17.327,9.328,17.675,9.863,18.222,9.977"/>
+		<path id="Shape_39_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M14.72,9.044c0.545,0.114,1.082-0.232,1.197-0.776
+			c0.115-0.543-0.233-1.076-0.779-1.191c-0.546-0.115-1.082,0.233-1.196,0.777C13.826,8.396,14.175,8.929,14.72,9.044"/>
+		<path id="Shape_40_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M11.636,8.002c-0.546-0.115-1.082,0.233-1.195,0.775
+			c-0.116,0.542,0.232,1.077,0.777,1.191c0.546,0.115,1.082-0.233,1.198-0.775C12.53,8.65,12.183,8.117,11.636,8.002"/>
+		<path id="Shape_41_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M19.274,15.592c-0.294-0.148-0.653-0.031-0.803,0.262
+			c-0.149,0.293-0.032,0.651,0.262,0.801c0.294,0.148,0.653,0.031,0.803-0.262S19.569,15.742,19.274,15.592"/>
+		<path id="Shape_42_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M18.73,14.48c0.294,0.149,0.654,0.032,0.804-0.261
+			c0.149-0.293,0.032-0.651-0.262-0.8c-0.295-0.149-0.655-0.032-0.803,0.261C18.319,13.973,18.437,14.331,18.73,14.48"/>
+		<path id="Shape_43_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M12.193,11.51c-0.294-0.149-0.654-0.031-0.803,0.261
+			s-0.032,0.651,0.262,0.801c0.294,0.148,0.653,0.031,0.804-0.262C12.604,12.017,12.487,11.659,12.193,11.51"/>
+		<path id="Shape_44_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M10.539,14.475c0.294,0.149,0.654,0.032,0.804-0.261
+			c0.149-0.293,0.032-0.651-0.263-0.801c-0.294-0.149-0.654-0.031-0.802,0.261C10.128,13.967,10.245,14.326,10.539,14.475"/>
+		<path id="Shape_45_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M11.084,15.605c-0.294-0.148-0.654-0.031-0.803,0.262
+			c-0.149,0.292-0.033,0.65,0.261,0.8c0.295,0.149,0.654,0.032,0.803-0.261C11.496,16.113,11.379,15.755,11.084,15.605"/>
+		<path id="Shape_46_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M12.186,17.499c-0.294-0.149-0.653-0.032-0.802,0.261
+			c-0.15,0.293-0.033,0.651,0.261,0.801c0.294,0.148,0.654,0.033,0.803-0.262C12.598,18.006,12.481,17.647,12.186,17.499"/>
+		<path id="Shape_47_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M14.094,18.584c-0.294-0.148-0.654-0.031-0.803,0.262
+			c-0.149,0.293-0.033,0.651,0.262,0.8c0.294,0.149,0.654,0.032,0.803-0.261C14.506,19.092,14.389,18.733,14.094,18.584"/>
+		<path id="Shape_48_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M16.291,18.582c-0.295-0.148-0.654-0.031-0.803,0.261
+			c-0.151,0.293-0.033,0.651,0.261,0.801c0.294,0.148,0.654,0.031,0.804-0.261C16.703,19.089,16.585,18.73,16.291,18.582"/>
+		<path id="Shape_49_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M18.185,17.488c-0.294-0.148-0.653-0.031-0.802,0.262
+			c-0.15,0.292-0.033,0.651,0.262,0.799c0.294,0.15,0.654,0.033,0.804-0.26C18.596,17.995,18.479,17.639,18.185,17.488"/>
+		<path id="Shape_50_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M17.641,12.585c0.294,0.148,0.653,0.031,0.804-0.262
+			c0.149-0.292,0.033-0.651-0.263-0.799c-0.293-0.149-0.653-0.033-0.802,0.261C17.229,12.077,17.348,12.436,17.641,12.585"/>
+		<path id="Shape_51_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M15.744,11.494c0.294,0.148,0.655,0.032,0.803-0.261
+			c0.15-0.293,0.032-0.651-0.262-0.8c-0.293-0.149-0.654-0.032-0.802,0.261C15.333,10.985,15.45,11.345,15.744,11.494"/>
+		<path id="Shape_52_" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M14.097,10.427c-0.294-0.149-0.654-0.032-0.803,0.261
+			c-0.15,0.292-0.033,0.651,0.261,0.8c0.294,0.149,0.653,0.033,0.803-0.261C14.508,10.934,14.391,10.576,14.097,10.427"/>
+	</g>
+</g>
+</svg>
+  </a>
+  
+</div><!-- /bottom-bar -->
+
+  
+  <script>
+  function startApplication(VAPI) {
+    var $ = window.jQuery;
+
+    
+      VAPI.progress.start();
+
+var DemoApplication = VAPI.VeroldApp.extend({
+  defaultSceneLoaded: function (scene) {
+    this.threeScene = scene.threeData;
+    this.muted = false;
+
+    var that = this;
+    scene.traverse(function(obj) {
+      if (obj.threeData instanceof THREE.Camera) {
+        that.threeCamera = obj.threeData;
+
+        obj.threeData.aspect = $(window).width() / $(window).height();
+        obj.threeData.updateProjectionMatrix();
+      }
+    });
+
+    VAPI.progress.done();
+  },
+
+  defaultSceneProgress: function(sceneObj) {
+    var loaded = Math.ceil(((sceneObj.loadingProgress.hierarchy + sceneObj.loadingProgress.dependencies) / sceneObj.getDataSize()) * 100) / 100;
+    VAPI.progress.set(loaded);
+  },
+
+  update: function(delta) {
+  },
+
+  render: function(delta) {
+    // Call this once per render to reset draw calls, vertices and
+    // faces
+    VAPI.resetRenderStats();
+
+    if (this.threeScene && this.threeCamera) {
+      var renderer = this.getRenderer();
+
+      renderer.render( this.threeScene, this.threeCamera );
+
+      // Call this after each call to renderer.render to track
+      // draw calls, vertices and faces
+      VAPI.addRenderStats(renderer);
+    }
+  }
+});
+
+var app = new DemoApplication({
+  el: '#verold3d',
+  projectId: '525ebdb77c926a02000002cf',
+  engineOptions: {
+  }
+});
+
+window.app = app;
+
+app.run();
+
+  $(function() {
+    $(".sound-toggle").click( function() { 
+      $('#mute').toggle();
+      window.app.muted = !window.app.muted;
+     }); 
+  }); 
+
+    
+  }
+  </script>
+  
+    <script src="http://assets.verold.com/runtime/verold-runtime-0.5.0.min.js"></script>
+    <script>
+    startApplication(window.VAPI);
+    </script>
+  
+</body>
+</html>
+
